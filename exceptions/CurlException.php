@@ -29,7 +29,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace RiotAPI\exceptions;
 
-public CurlException extends Exception {
+use \Exception;
+
+class CurlException extends Exception {
     
     protected   $message = 'Unknown exception';   // exception message
     private     $string;                          // __toString cache

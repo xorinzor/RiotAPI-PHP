@@ -41,6 +41,9 @@ use \RiotApi\exceptions\CurlException;
 use \RiotAPI\model\Summoner;
 use \RiotAPI\model\Champion;
 
+use \CacheAPC;
+use \ArrayObject;
+
 class RiotAPI {
 	const STATIC_SERVER_URL		    = 'http://prod.api.pvp.net/api/lol/static-data/{region}/v1/';
 	const CHAMPION_SERVER_URL 	    = 'http://prod.api.pvp.net/api/lol/{region}/v1.1/champion';
@@ -50,14 +53,19 @@ class RiotAPI {
 	const SUMMONER_SERVER_URL 	    = 'http://prod.api.pvp.net/api/lol/{region}/v1.3/summoner/';
 	const TEAM_SERVER_URL 		    = 'http://prod.api.pvp.net/api/lol/{region}/v2.2/team/';
  
-	const API_KEY 				    = 'YOUR_API_KEY'; //The Riot API key to use
+	const API_KEY 			    	= 'YOUR_API_KEY'; //The Riot API key to use
 
 	const CACHE_LIFETIME_CHAMPIONS  = 900; //Time (in seconds) until champion cache results are refreshed
+	const CACHE_LIFETIME_SUMMONERS  = 900; //Time (in seconds) until summoner cache results are refreshed
 
-	const PATCH_VERSION 		    = '4.5.4';
+	const PATCH_VERSION 			= '4.5.4';
 	
-	const CACHE_ENABLED             = true; //when set to FALSE no caching methods will be used
-	const CACHE_APC                 = true; //Enable/Disable PHP-APC caching, see: http://www.php.net/manual/en/book.apc.php
+	const CACHE_ENABLED             = true; //setting this to false will disable all caching regardless of other settings
+	
+	const CACHE_CHAMPIONS           = true; //Enable/Disable Champion caching, it is highly recommended to leave this enabled
+	const CACHE_SUMMONERS           = true; //Enable/Disable Summoner caching, it is highly recommended to leave this enabled, adjust the cache lifetime where necessary
+	
+	const CACHE_METHOD_APC          = true; //Enable/Disable PHP-APC caching, see: http://www.php.net/manual/en/book.apc.php
 
 	private $region; 
 
@@ -73,17 +81,17 @@ class RiotAPI {
 
 	private $sql;
 
-    /**
-     * Constructor
-     * May throw exceptions when extensions are missing
-     * @param string region
-     */
+	/**
+	 * Constructor
+	 * May throw exceptions when extensions are missing
+	 * @param string region
+	 */
 	public function __construct($region = null) {
 		$this->region = null;
 		
 		//Check when CACHE_APC is set to true if the extension is loaded too to prevent errors later on
-		if(self::CACHE_APC && !extension_loaded('apc')) {
-		    throw new Exception("the PHP APC extension is not installed or has not been loaded, either enable the 'apc' extension or set CACHE_APC to FALSE");
+		if(self::CACHE_ENABLED && self::CACHE_METHOD_APC && !extension_loaded('apc')) {
+			throw new Exception("the PHP APC extension is not installed or has not been loaded, either enable the 'apc' extension or set CACHE_METHOD_APC to FALSE");
 		}
 	}
 
@@ -115,7 +123,7 @@ class RiotAPI {
 	 * @return boolean
 	 */
 	public function regionIsSet() {
-		return (!empty($this->getRegion()) && in_array($this->getRegion(), $this->getValidRegions()));
+		return in_array($this->getRegion(), $this->getValidRegions());
 	}
 
 	/**
@@ -128,7 +136,7 @@ class RiotAPI {
 	private function buildURL($url, $parameters = array(), $optional = array()) {
 		//Check if the region is valid, if it isn't executing the API call won't be of any use
 		if(!$this->regionIsSet()) {
-		    throw new ApiException("Invalid region is set for the Riot API call!");
+			throw new ApiException("Invalid region is set for the Riot API call!");
 		}
 
 		//Set the version
@@ -168,21 +176,23 @@ class RiotAPI {
 		$response       = curl_exec($ch);
 		
 		if($response === false) {
-		    throw new CurlException("An error occured while executing the cURL request", 0, $ch, curl_getinfo($ch));
+			throw new CurlException("An error occured while executing the cURL request", 0, $ch, curl_getinfo($ch));
 		}
 		
 		$header_size    = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-        $header         = substr($response, 0, $header_size);
-        $body           = substr($response, $header_size);
-        
+		$header         = substr($response, 0, $header_size);
+		$body           = substr($response, $header_size);
+		
 		$httpcode       = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        /*
-            Return the HTTP code if its not 200 (OK), since the result otherwise always would be of type "string"
-            any method using openUrl can tell by checking if the result is numeric if something went wrong
-        */
-		if($httpcode !== 200) {
-		    return $httpcode;
+		/*
+			Return the HTTP code if its not 200 (OK), since the result otherwise always would be of type "string"
+			any method using openUrl can tell by checking if the result is numeric if something went wrong
+		*/
+		if($httpcode === 401) {
+			throw new ApiException("Access Denied to the API, did you set the correct API_KEY?");
+		} elseif($httpcode !== 200) {
+			return $httpcode;
 		}
 		
 		//Close connection and clean up server resources
@@ -192,16 +202,16 @@ class RiotAPI {
 	}
 
 	public function executeCall($url) {
-	    //Check if a HTTP code is returned
+		//Check if a HTTP code is returned
 		$result = $this->openUrl($url);
 		
 		if(is_numeric($result)) {
-		    return $result;
+			return $result;
 		}
 		
 		//Check if the body is valid JSON
-        $decoded = json_decode($result, true);
-        
+		$decoded = json_decode($result, true);
+		
 		if($decoded === null || $decoded === false) {
 			throw new ApiException("JSON result could not be decoded or was invalid JSON");
 		}
@@ -214,28 +224,28 @@ class RiotAPI {
 	 * @param ftp Free To Play (true or false)
 	 */
 	public function getChampions($ftp = false) {
-	    //Fetch cache results IF enabled
-	    if(self::CACHE_ENABLED && self::CACHE_APC) {
-    		$cache = CacheAPC::getData('champions');
-	    } else {
-	        $cache = null;
-	    }
+		//Fetch cache results IF enabled
+		if(self::CACHE_ENABLED && self::CACHE_CHAMPIONS && self::CACHE_METHOD_APC) {
+			$cache = CacheAPC::getData('champions');
+		} else {
+			$cache = null;
+		}
 
 		//The cache will contain an ArrayObject instance
 		if(!is_null($cache)) {
 			return $cache->getArrayCopy();
 		}
 
-        //Create the URL to call
+		//Create the URL to call
 		$url = $this->buildURL(self::CHAMPION_SERVER_URL, array(), array('freeToPlay' => (($ftp === true) ? 'true' : 'false')));
 
-        //Execute the API call
+		//Execute the API call
 		$champions = $this->executeCall($url);
-        
-        //Initialize return variable
+		
+		//Initialize return variable
 		$result = array();
 
-        //Populate the return array with the champions fetched from the API
+		//Populate the return array with the champions fetched from the API
 		foreach($champions['champions'] as $champion) {
 			$result[$champion['id']] = new Champion(
 					$champion['id'],
@@ -248,11 +258,11 @@ class RiotAPI {
 				);
 		}
 
-        //store cache results IF enabled
-        if(self::CACHE_ENABLED && self::CACHE_APC) {
-    		//Store the Champion information in the memory for 5 minutes (cached, but not too long)
-    		CacheAPC::setData('champions', new ArrayObject($result), self::CACHE_LIFETIME_CHAMPIONS);
-        }
+		//store cache results IF enabled
+		if(self::CACHE_ENABLED && self::CACHE_CHAMPIONS && self::CACHE_METHOD_APC) {
+			//Store the Champion information in the memory for 5 minutes (cached, but not too long)
+			CacheAPC::setData('champions', new ArrayObject($result), self::CACHE_LIFETIME_CHAMPIONS);
+		}
 
 		return $result;
 	}
@@ -263,7 +273,11 @@ class RiotAPI {
 	 * @param ftp Free To Play (true or false)
 	 */
 	public function getChampion($id) {
-		$cache = CacheAPC::getData('champions');
+		if(self::CACHE_ENABLED && self::CACHE_CHAMPIONS && self::CACHE_METHOD_APC) {
+			$cache = CacheAPC::getData('champions');
+		} else {
+			$cache = null;
+		}
 
 		//The cache will contain an ArrayObject instance
 		if(!is_null($cache)) {
@@ -279,22 +293,23 @@ class RiotAPI {
 
 	/**
 	 * Get the summoner information by id
-	 * @parameter summoner the id of the summoner
+	 * @parameter id the id of the summoner
 	 */
-	public function getSummonerById($summoner) {
-		if(!is_numeric($summoner) || $summoner == '') {
+	public function getSummonerById($id) {
+		//Make sure the id provided is not empty and is numeric
+		if(!is_numeric($id) || $id == '') {
 			return null;
 		}
 
-        //Create the URL to call
-		$url = $this->buildURL(self::SUMMONER_SERVER_URL . '{summonerIds}', array('summonerIds' => $name));
+		//Create the URL to call
+		$url = $this->buildURL(self::SUMMONER_SERVER_URL . '{summonerIds}', array('summonerIds' => $id));
 
-        //Execute the API call
+		//Execute the API call
 		$summoner = $this->executeCall($url);
 		
 		//This API call will return 404 if no summoner with such a name is found
 		if($summoner === 404) {
-		    return null;
+			return null;
 		}
 		
 		//Get the array value from the first key, set it as the main array
@@ -303,9 +318,9 @@ class RiotAPI {
 		//Add the current region to the array
 		$summoner['region'] = $this->getRegion();
 
-        //$icon = 'http://ddragon.leagueoflegends.com/cdn/' . self::PATCH_VERSION . '/img/profileicon/' . $summoner['profileIconId'] . '.png';
+		//$icon = 'http://ddragon.leagueoflegends.com/cdn/' . self::PATCH_VERSION . '/img/profileicon/' . $summoner['profileIconId'] . '.png';
 
-        //Return the summoner object
+		//Return the summoner object
 		return (new Summoner())
 					->setId($summoner['summonerId'])
 					->setName($summoner['name'])
@@ -320,20 +335,20 @@ class RiotAPI {
 	 * @parameter summoner the name of the summoner
 	 */
 	public function getSummonerByName($name) {
-	    //Make sure the name provided is not empty
+		//Make sure the name provided is not empty
 		if($name == '') {
 			throw new ApiException("The summoner name to fetch can't be empty!");
 		}
 
-        //Create the URL to call
-        $url = $this->buildURL(self::SUMMONER_SERVER_URL . 'by-name/{summonerNames}', array('summonerNames' => $name));
+		//Create the URL to call
+		$url = $this->buildURL(self::SUMMONER_SERVER_URL . 'by-name/{summonerNames}', array('summonerNames' => $name));
 
-        //Execute the API call
+		//Execute the API call
 		$summoner = $this->executeCall($url);
 		
 		//This API call will return 404 if no summoner with such a name is found
 		if($summoner === 404) {
-		    return null;
+			return null;
 		}
 		
 		//Get the array value from the first key, set it as the main array
@@ -342,9 +357,9 @@ class RiotAPI {
 		//Add the current region to the array
 		$summoner['region'] = $this->getRegion();
 
-        //$icon = 'http://ddragon.leagueoflegends.com/cdn/' . self::PATCH_VERSION . '/img/profileicon/' . $summoner['profileIconId'] . '.png';
+		//$icon = 'http://ddragon.leagueoflegends.com/cdn/' . self::PATCH_VERSION . '/img/profileicon/' . $summoner['profileIconId'] . '.png';
 
-        //Return the summoner object
+		//Return the summoner object
 		return (new Summoner())
 					->setId($summoner['id'])
 					->setName($summoner['name'])

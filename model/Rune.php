@@ -34,7 +34,7 @@ namespace RiotAPI\model;
  *
  * @author Jorin Vermeulen
  */
-class Rune extends \InfinityCMS\mvc\AbstractModel {
+class Rune {
 	private $id;			//The id of the Rune
 	private $name;			//The name of the Rune
 	private $description;	//The description of the Rune
