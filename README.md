@@ -5,7 +5,7 @@ Simply replace YOUR_API_KEY with your API key from [Riot Games](http://developer
 
 Example
 ============
-```
+```php
 <?php
 //Include the class required (which will in turn load required files on its own)
 require("./RiotAPI.php");
