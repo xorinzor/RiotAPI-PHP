@@ -87,3 +87,11 @@ RiotAPI::getStaticData(string $type [, array $path = array() [, array $query = a
  + Rate Limit counter
  + More caching methods
  + Suggestions? Let me know via a ticket in the issues section
+
+
+Changelog
+------------
+29-4-2014
++ Added the getStaticData function
++ Removed the unused PATCH_VERSION variable
++ updated the comments
