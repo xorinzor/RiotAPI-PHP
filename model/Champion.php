@@ -94,37 +94,37 @@ class Champion {
 	/**
 	 * Setters
 	 */
-	public function setId(int $id) {
+	public function setId($id) {
 		$this->id = $id;
 		return $this;
 	}
 
-	public function setName(string $name) {
+	public function setName($name) {
 		$this->name = $name;
 		return $this;
 	}
 
-	public function setActive(bool $active) {
+	public function setActive($active) {
 		$this->active = $active;
 		return $this;
 	}
 
-	public function setFreeToPlay(bool $freeToPlay) {
+	public function setFreeToPlay($freeToPlay) {
 		$this->freeToPlay = $freeToPlay;
 		return $this;
 	}
 
-	public function setBotEnabled(bool $botEnabled) {
+	public function setBotEnabled($botEnabled) {
 		$this->botEnabled = $botEnabled;
 		return $this;
 	}
 
-	public function setBotMmEnabled(bool $botMmEnabled) {
+	public function setBotMmEnabled($botMmEnabled) {
 		$this->botMmEnabled = $botMmEnabled;
 		return $this;
 	}
 
-	public function setRankedPlayEnabled(bool $rankedPlayEnabled) {
+	public function setRankedPlayEnabled($rankedPlayEnabled) {
 		$this->rankedPlayEnabled = $rankedPlayEnabled;
 		return $this;
 	}
