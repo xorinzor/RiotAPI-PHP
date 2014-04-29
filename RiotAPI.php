@@ -416,7 +416,7 @@ class RiotAPI {
 		}
 		
 		//Create the URL to call
-		$url = $this->buildURL(self::SUMMONER_SERVER_URL . $type, $path, $query);
+		$url = $this->buildURL(self::STATIC_SERVER_URL . $type, $path, $query);
 		
 		//Execute the API call
 		$result = $this->executeCall($url);
