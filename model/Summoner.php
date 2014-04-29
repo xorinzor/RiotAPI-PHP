@@ -30,33 +30,33 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace RiotAPI\model;
 
 /**
- * Contains all Champion information available
+ * Contains Summoner information
  *
  * @author Jorin Vermeulen
  */
 class Summoner {
-	private $id;				//The id of the champion
-	private $name;				//The name of the champion
-	private $profileIconId;		//Indicates if the champion is active.
-	private $revisionDate; 		//Indicates if the champion is free to play. Free to play champions are rotated periodically.
-	private $summonerLevel;		//Bot enabled flag (for custom games).
-	private $region;
+	private $id;			//The id of the summoner
+	private $name;			//The name of the summoner
+	private $profileIconId;		//The summoners profile icon ID
+	private $revisionDate; 		//timestamp from when the profile is last updated
+	private $summonerLevel;		//the summoners level
+	private $region;            	//the region the summoner is in
 
 	public function __construct(
-		$id 				= null, 
-		$name 				= "", 
+		$id 			= null, 
+		$name 			= "", 
 		$profileIconId 		= 0,
 		$revisionDate 		= 0,
 		$summonerLevel 		= 0,
-		$region 			= ""
+		$region 		= ""
 		) 
 	{
-		$this->id					= $id;
-		$this->name					= $name;
-		$this->profileIconId		= $profileIconId;
-		$this->revisionDate			= $revisionDate;
-		$this->summonerLevel		= $summonerLevel;
-		$this->region 				= $region;
+		$this->id		= $id;
+		$this->name		= $name;
+		$this->profileIconId	= $profileIconId;
+		$this->revisionDate	= $revisionDate;
+		$this->summonerLevel	= $summonerLevel;
+		$this->region 		= $region;
 	}
 
 	/**
@@ -88,12 +88,12 @@ class Summoner {
 
 	public function toArray() {
 		return array(
-				'id' 			=> $this->getId(),
-				'name' 			=> $this->getName(),
+				'id' 		=> $this->getId(),
+				'name' 		=> $this->getName(),
 				'profileIconId' => $this->getProfileIconId(),
 				'revisionDate' 	=> $this->getRevisionDate(),
 				'summonerLevel' => $this->getSummonerLevel(),
-				'region' 		=> $this->getRegion()
+				'region' 	=> $this->getRegion()
 			);
 	}
 
