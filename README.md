@@ -94,5 +94,6 @@ Changelog
 29-4-2014
 + Added RiotAPI::getStaticData
 + Fixed cache result bug in RiotAPI::getChampions
++ Fixed RiotAPI::getChampions for the new v1.2 server url (get champion name via RiotAPI::getStaticData)
 + Removed the unused PATCH_VERSION variable
 + updated the comments
