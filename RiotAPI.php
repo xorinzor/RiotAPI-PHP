@@ -264,6 +264,10 @@ class RiotAPI {
 		//Execute the API call
 		$champions = $this->executeCall($url);
 		
+		//Get the static champions
+		$staticChampions = $this->getStaticData('champion', array(), array('dataById' => 'true'));
+		$staticChampions = $staticChampions['data'];
+
 		//Initialize return variable
 		$result = array();
 
@@ -271,7 +275,7 @@ class RiotAPI {
 		foreach($champions['champions'] as $champion) {
 			$result[$champion['id']] = new Champion(
 					$champion['id'],
-					$champion['name'],
+					$staticChampions[$champion['id']]['name'],
 					$champion['active'],
 					$champion['freeToPlay'],
 					$champion['botEnabled'],
