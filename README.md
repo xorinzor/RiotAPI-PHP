@@ -96,4 +96,5 @@ Changelog
 + Fixed cache result bug in RiotAPI::getChampions
 + Fixed RiotAPI::getChampions for the new v1.2 server url (get champion name via RiotAPI::getStaticData)
 + Removed the unused PATCH_VERSION variable
++ Removed type hinting from the model classes
 + updated the comments
