@@ -58,7 +58,7 @@ class RiotAPI {
 	const CACHE_LIFETIME_CHAMPIONS  = 900; //Time (in seconds) until champion cache results are refreshed
 	const CACHE_LIFETIME_SUMMONERS  = 900; //Time (in seconds) until summoner cache results are refreshed
 
-	const CACHE_ENABLED             = false; //setting this to false will disable all caching regardless of other settings
+	const CACHE_ENABLED             = true; //setting this to false will disable all caching regardless of other settings
 	
 	const CACHE_CHAMPIONS           = true; //Enable/Disable Champion caching, it is highly recommended to leave this enabled
 	const CACHE_SUMMONERS           = true; //Enable/Disable Summoner caching, it is highly recommended to leave this enabled, adjust the cache lifetime where necessary
