@@ -237,8 +237,24 @@ class RiotAPI {
 			$cache = null;
 		}
 
-		//The cache will contain an ArrayObject instance
+		//Check if cache exists
 		if(!is_null($cache)) {
+			//Check if only Free To Play champions are requested
+			if($ftp === true) {
+				$result = $cache->getArrayCopy();
+				
+				//Remove each non-free to play champion from the result array
+				foreach($result as &$value) {
+					if(!$value->getFreeToPlay()) {
+						unset($value);
+					}
+				}
+				
+				//Return the free to play champions
+				return $result;
+			}
+			
+			//Return all champions
 			return $cache->getArrayCopy();
 		}
 
