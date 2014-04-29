@@ -45,22 +45,20 @@ use \CacheAPC;
 use \ArrayObject;
 
 class RiotAPI {
-	const STATIC_SERVER_URL		    = 'http://prod.api.pvp.net/api/lol/static-data/{region}/v1/';
-	const CHAMPION_SERVER_URL 	    = 'http://prod.api.pvp.net/api/lol/{region}/v1.1/champion';
+	const STATIC_SERVER_URL		    = 'http://prod.api.pvp.net/api/lol/static-data/{region}/v1.2/';
+	const CHAMPION_SERVER_URL 	    = 'http://prod.api.pvp.net/api/lol/{region}/v1.2/champion';
 	const GAME_SERVER_URL		    = 'http://prod.api.pvp.net/api/lol/{region}/v1.3/game/';
 	const LEAGUE_SERVER_URL 	    = 'http://prod.api.pvp.net/api/lol/{region}/v2.3/league/';
-	const STATS_SERVER_URL		    = 'http://prod.api.pvp.net/api/lol/{region}/v1.2/stats/';
-	const SUMMONER_SERVER_URL 	    = 'http://prod.api.pvp.net/api/lol/{region}/v1.3/summoner/';
+	const STATS_SERVER_URL		    = 'http://prod.api.pvp.net/api/lol/{region}/v1.3/stats/';
+	const SUMMONER_SERVER_URL 	    = 'http://prod.api.pvp.net/api/lol/{region}/v1.4/summoner/';
 	const TEAM_SERVER_URL 		    = 'http://prod.api.pvp.net/api/lol/{region}/v2.2/team/';
  
-	const API_KEY 			    	= 'YOUR_API_KEY'; //The Riot API key to use
+	const API_KEY 			= 'YOUR_API_KEY'; //The Riot API key to use
 
 	const CACHE_LIFETIME_CHAMPIONS  = 900; //Time (in seconds) until champion cache results are refreshed
 	const CACHE_LIFETIME_SUMMONERS  = 900; //Time (in seconds) until summoner cache results are refreshed
 
-	const PATCH_VERSION 			= '4.5.4';
-	
-	const CACHE_ENABLED             = true; //setting this to false will disable all caching regardless of other settings
+	const CACHE_ENABLED             = false; //setting this to false will disable all caching regardless of other settings
 	
 	const CACHE_CHAMPIONS           = true; //Enable/Disable Champion caching, it is highly recommended to leave this enabled
 	const CACHE_SUMMONERS           = true; //Enable/Disable Summoner caching, it is highly recommended to leave this enabled, adjust the cache lifetime where necessary
@@ -113,6 +111,7 @@ class RiotAPI {
 
 	/**
 	 * Set the region to use for the API calls
+	 * @param string the region to use for API calls
 	 */
 	public function setRegion($region) {
 		$this->region = $region;
@@ -129,29 +128,29 @@ class RiotAPI {
 	/**
 	 * Build the URL to use for the call
 	 * @param string url the base url
-	 * @param array required parameters (such as region, summonerIds, etc)
-	 * @param array optional parameters (such as locale, version, etc)
+	 * @param array query parameters (such as region, summonerIds, etc)
+	 * @param array path parameters (such as locale, version, etc)
 	 * @return string
 	 */
-	private function buildURL($url, $parameters = array(), $optional = array()) {
+	private function buildURL($url, $query = array(), $path = array()) {
 		//Check if the region is valid, if it isn't executing the API call won't be of any use
 		if(!$this->regionIsSet()) {
 			throw new ApiException("Invalid region is set for the Riot API call!");
 		}
 
-		//Set the version
+		//Set the region in the url
 		$url = str_replace('{region}', $this->getRegion(), $url);
 
-		//Add required parameters
-		foreach($parameters as $key=>$value) {
+		//Add path parameters
+		foreach($query as $key=>$value) {
 			$url = str_replace('{'.$key.'}', rawurlencode($value), $url);
 		}
 
-		//Add the API key
+		//Add the API key query parameter to the url
 		$url .= '?api_key=' . self::API_KEY;
 
-		//Add the optional parameters to the URL
-		foreach($optional as $key=>$value) {
+		//Add the query parameters to the URL
+		foreach($path as $key=>$value) {
 			$url .= '&' . rawurlencode($key) . '=' . rawurlencode($value);
 		}
 
@@ -201,6 +200,11 @@ class RiotAPI {
 		return $body;
 	}
 
+	/**
+	 * Open the url and try to decode the resulting JSON into an array, also handles errors that may occur
+	 * @param string the URL to fetch
+	 * @return mixed either numeric when an http error code is returned, else returns the decoded json as array
+	 */
 	public function executeCall($url) {
 		//Check if a HTTP code is returned
 		$result = $this->openUrl($url);
@@ -221,7 +225,9 @@ class RiotAPI {
 
 	/**
 	 * Fetch all champions and their information
-	 * @param ftp Free To Play (true or false)
+	 * @TODO fix fetching only FtP champions from cache
+	 * @param boolean only fetch Free To Play champions
+	 * @return array
 	 */
 	public function getChampions($ftp = false) {
 		//Fetch cache results IF enabled
@@ -270,7 +276,8 @@ class RiotAPI {
 	/**
 	 * Fetch the champion with the given ID and its information from the cache
 	 * if the cache doesn't exist it will be refreshed
-	 * @param ftp Free To Play (true or false)
+	 * @param int the ID from the champion to fetch
+	 * @return \RiotAPI\model\Champion
 	 */
 	public function getChampion($id) {
 		if(self::CACHE_ENABLED && self::CACHE_CHAMPIONS && self::CACHE_METHOD_APC) {
@@ -294,6 +301,7 @@ class RiotAPI {
 	/**
 	 * Get the summoner information by id
 	 * @parameter id the id of the summoner
+	 * @return \RiotAPI\model\Summoner
 	 */
 	public function getSummonerById($id) {
 		//Make sure the id provided is not empty and is numeric
@@ -318,8 +326,6 @@ class RiotAPI {
 		//Add the current region to the array
 		$summoner['region'] = $this->getRegion();
 
-		//$icon = 'http://ddragon.leagueoflegends.com/cdn/' . self::PATCH_VERSION . '/img/profileicon/' . $summoner['profileIconId'] . '.png';
-
 		//Return the summoner object
 		return (new Summoner())
 					->setId($summoner['summonerId'])
@@ -332,7 +338,8 @@ class RiotAPI {
 
 	/**
 	 * Get the summoner information by name
-	 * @parameter summoner the name of the summoner
+	 * @parameter string the name of the summoner
+	 * @return \RiotAPI\model\Summoner
 	 */
 	public function getSummonerByName($name) {
 		//Make sure the name provided is not empty
@@ -357,8 +364,6 @@ class RiotAPI {
 		//Add the current region to the array
 		$summoner['region'] = $this->getRegion();
 
-		//$icon = 'http://ddragon.leagueoflegends.com/cdn/' . self::PATCH_VERSION . '/img/profileicon/' . $summoner['profileIconId'] . '.png';
-
 		//Return the summoner object
 		return (new Summoner())
 					->setId($summoner['id'])
@@ -367,5 +372,52 @@ class RiotAPI {
 					->setRevisionDate($summoner['revisionDate'])
 					->setSummonerLevel($summoner['summonerLevel'])
 					->setRegion($summoner['region']);
+	}
+	
+	/**
+	 * Get data from the static-data API, these requests will not be counted in your rate limit
+	 * @param string the type of data you want to request (champion, champion/{id},  item, item/{id}, etc (full list can be found at http://developer.riotgames.com/api/methods#!/710/))
+	 * @param array an array containing path parameters (such as region, id, etc)
+	 * @param array an array containing query parameters (such as locale, version, etc)
+	 * @return mixed
+	 */
+	public function getStaticData($type, $path = array(), $query = array()) {
+		//Make sure the type provided is not empty
+		if($type == '') {
+			throw new ApiException("The static data type to fetch can't be empty!");
+		}
+		
+		//Check if cache is enabled and if so, whether cached data exists
+		if(self::CACHE_ENABLED && self::CACHE_STATICDATA && self::CACHE_METHOD_APC) {
+			$cache = CacheAPC::getData('static_'.$type);
+		} else {
+			$cache = null;
+		}
+		
+		//Check if cache exists
+		if(!is_null($cache)) {
+			return $cache;
+		}
+		
+		//Create the URL to call
+		$url = $this->buildURL(self::SUMMONER_SERVER_URL . $type, $path, $query);
+		
+		//Execute the API call
+		$result = $this->executeCall($url);
+		
+		/* 
+		An array will only be returned when the call succeeds and no exceptions occur
+		therefor we can safely assume if the result is NOT an array that the api call returned an error code
+		*/
+		if(!is_array($result)) {
+			return null;
+		}
+		
+		//store results in cache IF caching is enabled
+		if(self::CACHE_ENABLED && self::CACHE_CHAMPIONS && self::CACHE_METHOD_APC) {
+			CacheAPC::setData('static_'.$type, $result, self::CACHE_LIFETIME_CHAMPIONS);
+		}
+		
+		return $result;
 	}
 }
