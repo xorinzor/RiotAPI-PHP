@@ -30,19 +30,19 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace RiotAPI\model;
 
 /**
- * Contains all Champion information available
+ * Contains all Rune information available
  *
  * @author Jorin Vermeulen
  */
 class Rune {
-	private $id;			//The id of the Rune
-	private $name;			//The name of the Rune
+	private $id;		//The id of the Rune
+	private $name;		//The name of the Rune
 	private $description;	//The description of the Rune
-	private $tier;			//The tier level of the Rune
+	private $tier;		//The tier level of the Rune
 
 	public function __construct() {
-		$this->id			= null;
-		$this->name			= "";
+		$this->id		= null;
+		$this->name		= "";
 		$this->description 	= "";
 		$this->tier 		= 0;
 	}
@@ -69,19 +69,19 @@ class Rune {
 	/**
 	 * Setters
 	 */
-	public function setId(int $id) {
+	public function setId($id) {
 		$this->id = $id;
 	}
 
-	public function setName(string $name) {
+	public function setName($name) {
 		$this->name = $name;
 	}
 
-	public function setDescription(string $description) {
+	public function setDescription($description) {
 		$this->description = $description;
 	}
 
-	public function setTier(int $tier) {
+	public function setTier($tier) {
 		$this->tier = $tier;
 	}
 }
