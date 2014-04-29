@@ -66,7 +66,7 @@ RiotAPI::setRegion(string $region);
 RiotAPI::executeCall(string $url);  //
 
 //Get a list of champions
-RiotAPI::getChampions([ boolean $freeToPlay ]);
+RiotAPI::getChampions([ boolean $freeToPlay = false ]);
 
 //Get an champion by its ID
 RiotAPI::getChampion(int $id);
