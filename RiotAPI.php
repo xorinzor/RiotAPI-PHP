@@ -43,6 +43,7 @@ use \RiotAPI\model\Champion;
 
 use \CacheAPC;
 use \ArrayObject;
+use \Exception;
 
 class RiotAPI {
 	const STATIC_SERVER_URL		    = 'http://prod.api.pvp.net/api/lol/static-data/{region}/v1.2/';
