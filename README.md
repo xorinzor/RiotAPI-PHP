@@ -91,6 +91,9 @@ RiotAPI::getStaticData(string $type [, array $path = array() [, array $query = a
 
 Changelog
 ------------
+30-4-2014
++ Fixed RiotAPI.php bug
+
 29-4-2014
 + Added RiotAPI::getStaticData
 + Fixed cache result bug in RiotAPI::getChampions
