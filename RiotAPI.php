@@ -85,8 +85,6 @@ class RiotAPI {
 			'tr'
 		);
 
-	private $sql;
-
 	/**
 	 * Constructor
 	 * May throw exceptions when extensions are missing
@@ -140,7 +138,7 @@ class RiotAPI {
 	 * @param array path parameters (such as locale, version, etc)
 	 * @return string
 	 */
-	public function buildURL($url, $query = array(), $path = array()) {
+	private function buildURL($url, $query = array(), $path = array()) {
 		//Check if the region is valid, if it isn't executing the API call won't be of any use
 		if(!$this->regionIsSet()) {
 			throw new ApiException("Invalid region is set for the Riot API call!");
