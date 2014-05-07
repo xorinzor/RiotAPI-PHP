@@ -29,12 +29,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace RiotAPI;
 
-require_once('lib/CacheAPC.php');
+$path = realpath(dirname(__FILE__)) . '/';
 
-require_once('exceptions/ApiException.php');
-require_once('exceptions/CurlException.php');
-require_once('model/Summoner.php');
-require_once('model/Champion.php');
+require_once($path . 'lib/CacheAPC.php');
+
+require_once($path . 'exceptions/ApiException.php');
+require_once($path . 'exceptions/CurlException.php');
+require_once($path . 'model/Summoner.php');
+require_once($path . 'model/Champion.php');
 
 use \RiotAPI\exceptions\ApiException;
 use \RiotApi\exceptions\CurlException;
@@ -77,10 +79,11 @@ class RiotAPI {
 			'eune',
 			'lan',
 			'las',
-			'oce'
+			'oce',
+			'kr',
+			'ru',
+			'tr'
 		);
-
-	private $sql;
 
 	/**
 	 * Constructor
@@ -88,7 +91,7 @@ class RiotAPI {
 	 * @param string region
 	 */
 	public function __construct($region = null) {
-		$this->region = null;
+		$this->region = $region;
 		
 		//Check when CACHE_APC is set to true if the extension is loaded too to prevent errors later on
 		if(self::CACHE_ENABLED && self::CACHE_METHOD_APC && !extension_loaded('apc')) {
@@ -135,7 +138,7 @@ class RiotAPI {
 	 * @param array path parameters (such as locale, version, etc)
 	 * @return string
 	 */
-	private function buildURL($url, $query = array(), $path = array()) {
+	public function buildURL($url, $query = array(), $path = array()) {
 		//Check if the region is valid, if it isn't executing the API call won't be of any use
 		if(!$this->regionIsSet()) {
 			throw new ApiException("Invalid region is set for the Riot API call!");
