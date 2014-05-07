@@ -77,7 +77,10 @@ class RiotAPI {
 			'eune',
 			'lan',
 			'las',
-			'oce'
+			'oce',
+			'kr',
+			'ru',
+			'tr'
 		);
 
 	private $sql;
