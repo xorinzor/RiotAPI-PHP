@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/xorinzor/RiotAPI-PHP.svg?branch=master)](https://travis-ci.org/xorinzor/RiotAPI-PHP)
+
 RiotAPI-php
 ============
 A PHP library to get you started quickly with implementing the League of Legends API from Riot Games in your web application.<br /><br />
@@ -91,6 +93,10 @@ RiotAPI::getStaticData(string $type [, array $path = array() [, array $query = a
 
 Changelog
 ------------
+7-5-2014
++ Added files for build-testing with Trevis-CI
++ Fixed bug setting the region in the constructor
+
 30-4-2014
 + Fixed RiotAPI.php bug
 
