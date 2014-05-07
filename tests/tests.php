@@ -1,5 +1,9 @@
 <?php
 
+require("../RiotAPI.php");
+use \RiotAPI\RiotAPI;
+    
+        
 class tests extends PHPUnit_Framework_TestCase
 {
     private $api;
