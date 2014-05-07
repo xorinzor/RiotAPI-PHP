@@ -2,7 +2,7 @@
  
 # this script is in a `bin/` folder
  
-if [ "$TRAVIS_PHP_VERSION" == "5.3" ] || [ "$TRAVIS_PHP_VERSION" == "5.4" ]
+if [ "$TRAVIS_PHP_VERSION" == "5.4" ]
 then
     exit 0
 fi
