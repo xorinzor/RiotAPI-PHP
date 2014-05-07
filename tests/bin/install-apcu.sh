@@ -2,7 +2,7 @@
  
 # this script is in a `bin/` folder
  
-if [ "$TRAVIS_PHP_VERSION" == "5.3" ] || [ "$TRAVIS_PHP_VERSION" == "5.4" ]
+if [ "$TRAVIS_PHP_VERSION" == "5.4" ]
 then
     exit 0
 fi
@@ -11,7 +11,7 @@ fi
 sudo apt-get install autoconf
  
 # install this version
-APCU=4.0.2
+APCU=4.0.4
  
 # compile manually, because `pecl install apcu-beta` keep asking questions
 wget http://pecl.php.net/get/apcu-$APCU.tgz
