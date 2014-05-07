@@ -23,7 +23,6 @@ class tests extends PHPUnit_Framework_TestCase
     
     public function testBuildUrl()
     {
-        var_dump($this->api);
         $this->assertNotEmpty($this->api->buildURL(RiotAPI::STATIC_SERVER_URL . 'versions'));
     }
 
