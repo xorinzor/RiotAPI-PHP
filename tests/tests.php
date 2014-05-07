@@ -10,8 +10,10 @@ class tests extends PHPUnit_Framework_TestCase
 {
     private $api;
     
-    public function setUp()
+    public function __construct()
     {
+        parent::__construct();
+        
         $this->api = new RiotAPI("euw");
         $this->assertNotNull($this->api);
     }
