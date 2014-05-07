@@ -8,12 +8,10 @@ use \RiotAPI\Exceptions\ApiException;
         
 class tests extends PHPUnit_Framework_TestCase
 {
-    private $api;
+    protected $api;
     
-    public function __construct()
+    public function setUp()
     {
-        parent::__construct();
-        
         $this->api = new RiotAPI("euw");
         $this->assertNotNull($this->api);
     }
@@ -25,6 +23,7 @@ class tests extends PHPUnit_Framework_TestCase
     
     public function testBuildUrl()
     {
+        var_dump($this->api);
         $this->assertNotEmpty($this->api->buildURL(RiotAPI::STATIC_SERVER_URL . 'versions'));
     }
 
