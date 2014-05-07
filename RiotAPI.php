@@ -29,12 +29,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace RiotAPI;
 
-require_once('lib/CacheAPC.php');
+$path = realpath(dirname(__FILE__)) . '/';
 
-require_once('exceptions/ApiException.php');
-require_once('exceptions/CurlException.php');
-require_once('model/Summoner.php');
-require_once('model/Champion.php');
+require_once($path . 'lib/CacheAPC.php');
+
+require_once($path . 'exceptions/ApiException.php');
+require_once($path . 'exceptions/CurlException.php');
+require_once($path . 'model/Summoner.php');
+require_once($path . 'model/Champion.php');
 
 use \RiotAPI\exceptions\ApiException;
 use \RiotApi\exceptions\CurlException;
