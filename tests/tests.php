@@ -1,8 +1,10 @@
 <?php
 
 require("../RiotAPI.php");
+
 use \RiotAPI\RiotAPI;
-    
+use \RiotAPI\Exceptions\CurlException;
+use \RiotAPI\Exceptions\ApiException;
         
 class tests extends PHPUnit_Framework_TestCase
 {
@@ -11,13 +13,9 @@ class tests extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->api = new RiotAPI("euw");
+        $this->assertNotNull($this->api);
     }
 
-    public function testGetValidRegions()
-    {
-        $this->assertInstanceOf('array', $this->api->getValidRegions());
-    }
-    
     public function testRegionIsSet()
     {
         $this->assertTrue($this->api->regionIsSet());
@@ -30,13 +28,13 @@ class tests extends PHPUnit_Framework_TestCase
 
     public function testExecuteCallToIncorrectUrl()
     {
-        $this->setExpectedException('CurlException');
+        $this->setExpectedException('\RiotAPI\Exceptions\CurlException');
         $this->api->executeCall('http://nonexisiting.example.com/');
     }
     
     public function testExecuteCallWithoutValidApiKey()
     {
-        $this->setExpectedException('ApiException');
+        $this->setExpectedException('\RiotAPI\Exceptions\ApiException');
         $this->api->executeCall($this->api->buildURL(RiotAPI::STATIC_SERVER_URL . 'versions'));
     }
 }
