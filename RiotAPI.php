@@ -140,7 +140,7 @@ class RiotAPI {
 	 * @param array path parameters (such as locale, version, etc)
 	 * @return string
 	 */
-	private function buildURL($url, $query = array(), $path = array()) {
+	public function buildURL($url, $query = array(), $path = array()) {
 		//Check if the region is valid, if it isn't executing the API call won't be of any use
 		if(!$this->regionIsSet()) {
 			throw new ApiException("Invalid region is set for the Riot API call!");
