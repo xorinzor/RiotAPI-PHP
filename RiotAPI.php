@@ -91,7 +91,7 @@ class RiotAPI {
 	 * @param string region
 	 */
 	public function __construct($region = null) {
-		$this->region = null;
+		$this->region = $region;
 		
 		//Check when CACHE_APC is set to true if the extension is loaded too to prevent errors later on
 		if(self::CACHE_ENABLED && self::CACHE_METHOD_APC && !extension_loaded('apc')) {
