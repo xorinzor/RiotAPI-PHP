@@ -2,6 +2,9 @@ RiotAPI-php
 ============
 [![Build Status](https://travis-ci.org/xorinzor/RiotAPI-PHP.svg?branch=master)](https://travis-ci.org/xorinzor/RiotAPI-PHP)
 
+OUT-OF-DATE - Feel free to commit updates to this library
+============
+
 A PHP library to get you started quickly with implementing the League of Legends API from Riot Games in your web application.<br /><br />
 Simply replace YOUR_API_KEY in the RiotAPI.php file with your API key from [Riot Games](http://developer.riotgames.com/) to get started.
 
